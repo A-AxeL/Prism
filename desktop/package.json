@@ -1,0 +1,59 @@
+{
+  "name": "prism-desktop",
+  "productName": "Prism",
+  "version": "0.45.9",
+  "description": "Prism: a real-time ray tracer and planet engine",
+  "author": "AAxeL08",
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "io.github.aaxel08.prism",
+    "productName": "Prism",
+    "artifactName": "Prism-Setup-${version}.${ext}",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "Prism"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "OWNER",
+        "repo": "REPO",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Prism texture pipeline</title>
+<style>body{font:14px system-ui;background:#111;color:#ddd;margin:16px}button{font:inherit;padding:6px 14px}#log{white-space:pre-wrap;font:12px monospace;margin-top:12px}
+#grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}#grid figure{margin:0;width:128px;font:11px monospace}#grid img{width:128px;height:128px;display:block}</style></head><body>
+<h3>Prism texture pipeline</h3>
+<p>Downloads CC0 photo-scanned textures from Poly Haven (polyhaven.com), shrinks and packs them, and saves them to
+assets/textures/ through the dev server. Albedo: <code>NAME_a.webp</code> (sRGB colour). Detail: <code>NAME_n.webp</code> (R, G: the
+normal's x and y, OpenGL convention; B: height). Each at 1024 and 512 (<code>_a5</code>, <code>_n5</code>). <code>manifest.json</code> lists them
+with their average colour (linear) so the engine can keep the world's own colours and take only the detail.</p>
+<button id="go">Download and pack</button> <label><input type="checkbox" id="redo"> redo existing</label>
+<div id="log"></div><div id="grid"></div>
+<script>
+// the materials: Poly Haven id, the role it plays in the engine
+const MATS=[
+ ['sparse_grass','grass'],['leafy_grass','grass_lush'],['withered_grass','grass_dry'],['forrest_ground_01','forest_floor'],['leaves_forest_ground','forest_leaves'],
+ ['dirt','dirt'],['dry_ground_01','dry_ground'],['mud_cracked_dry_03','dry_mud'],['coast_sand_01','beach_sand'],['sand_01','desert_sand'],['gravel','gravel'],
+ ['rocky_terrain_02','rocky_ground'],['rock_surface','rock'],['cliff_side','cliff'],['gray_rocks','scree'],['lichen_rock','lichen_rock'],['mossy_rock','mossy_rock'],
+ ['snow_02','snow'],['dark_rock','dark_rock'],
+ ['red_sand','mars_sand'],['terrain_red_01','mars_ground'],['cracked_red_ground','mars_cracked'],['red_laterite_soil_stones','mars_stony'],['dry_riverbed_rock','mars_rock'],
+ ['bark_brown_02','bark_broadleaf'],['pine_bark','bark_pine'],['bark_platanus','bark_smooth'],['palm_bark','bark_palm'],['fever_tree_bark','bark_acacia'],['bark_willow','bark_willow']];
+const log=t=>{document.getElementById('log').textContent+=t+'\n';};
+const img=async url=>{const r=await fetch(url);if(!r.ok)throw new Error(r.status+' '+url);return await createImageBitmap(await r.blob());};
+const pick=(f,res)=>{for(const r of res){const e=f&&f[r];if(!e)continue;const v=e.jpg||e.png;if(v)return v.url;}return null;};
+const canvas=n=>{const c=new OffscreenCanvas(n,n);const x=c.getContext('2d',{willReadFrequently:true});x.imageSmoothingQuality='high';return [c,x];};
+const save=async(path,blob)=>{const r=await fetch('/__save?path='+encodeURIComponent(path),{method:'POST',body:blob});if(!r.ok)throw new Error('save failed '+path);};
+const lin=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};
+async function packOne(id,role,manifest){
+  const files=await (await fetch('https://api.polyhaven.com/files/'+id)).json();
+  const dU=pick(files.Diffuse,['2k','1k']),nU=pick(files.nor_gl,['1k','2k']),hU=pick(files.Displacement,['1k','2k']);
+  if(!dU||!nU)throw new Error('missing maps');
+  const [D,N,Hh]=await Promise.all([img(dU),img(nU),hU?img(hU):null]);
+  const entry={id,role,src:'https://polyhaven.com/a/'+id,license:'CC0'};
+  for(const n of [1024,512]){const sfx=n===1024?'':'5';
+    // albedo
+    let [c,x]=canvas(n);x.drawImage(D,0,0,n,n);const a=await c.convertToBlob({type:'image/webp',quality:.9});await save(`assets/textures/${role}_a${sfx}.webp`,a);
+    if(n===1024){const px=x.getImageData(0,0,n,n).data;let r=0,g=0,b=0,cnt=0;for(let i=0;i<px.length;i+=64){r+=lin(px[i]);g+=lin(px[i+1]);b+=lin(px[i+2]);cnt++;}entry.mean=[r/cnt,g/cnt,b/cnt].map(v=>+v.toFixed(4));
+      const u=URL.createObjectURL(a);const f=document.createElement('figure');f.innerHTML=`<img src="${u}"><figcaption>${role}</figcaption>`;document.getElementById('grid').appendChild(f);}
+    // detail: normal x, y and height
+    [c,x]=canvas(n);x.drawImage(N,0,0,n,n);const nd=x.getImageData(0,0,n,n);
+    let hd=null;if(Hh){const [c2,x2]=canvas(n);x2.drawImage(Hh,0,0,n,n);hd=x2.getImageData(0,0,n,n).data;}
+    // the height stretched to the full range (its own mean at mid grey)
+    let lo=255,hi=0;if(hd)for(let i=0;i<hd.length;i+=4){lo=Math.min(lo,hd[i]);hi=Math.max(hi,hd[i]);}
+    for(let i=0;i<nd.data.length;i+=4)nd.data[i+2]=hd?Math.round((hd[i]-lo)/Math.max(1,hi-lo)*255):128;
+    x.putImageData(nd,0,0);await save(`assets/textures/${role}_n${sfx}.webp`,await c.convertToBlob({type:'image/webp',quality:.92}));}
+  manifest[role]=entry;}
+document.getElementById('go').onclick=async()=>{const manifest={};let have={};try{have=await (await fetch('/assets/textures/manifest.json',{cache:'no-store'})).json();}catch(e){}
+  const redo=document.getElementById('redo').checked;let ok=0;
+  for(const [id,role] of MATS){if(have[role]&&!redo){manifest[role]=have[role];log('kept '+role);continue;}
+    try{const t0=performance.now();await packOne(id,role,manifest);ok++;log(`packed ${role} (${id}) in ${((performance.now()-t0)/1000).toFixed(1)} s`);}catch(e){log('FAILED '+role+' ('+id+'): '+e.message);}}
+  await save('assets/textures/manifest.json',new Blob([JSON.stringify(manifest,null,1)],{type:'application/json'}));log(`done: ${ok} packed, manifest saved`);window.DONE=true;};
+</script></body></html>

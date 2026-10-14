@@ -1,0 +1,1 @@
+{"name":"Prism","short_name":"Prism","description":"A real-time ray tracer and planet engine that runs in your browser.","start_url":"./","display":"fullscreen","background_color":"#0d0f14","theme_color":"#0d0f14","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]}

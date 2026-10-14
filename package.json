@@ -1,0 +1,14 @@
+{
+  "name": "prism",
+  "private": true,
+  "type": "module",
+  "description": "Prism: a WebGL2 ray tracer and planet engine for phone and desktop browsers",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "dev": "node tools/dev.mjs",
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

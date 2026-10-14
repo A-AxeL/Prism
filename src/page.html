@@ -1,0 +1,73 @@
+<title>Prism</title>
+<style>
+/*@@CSS@@*/
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap">
+
+<canvas id="c" aria-label="Rendered scene. Drag to orbit, pinch to zoom."></canvas>
+<div id="ui">
+  <div class="top">
+    <button id="pill" class="glass" aria-expanded="false" aria-controls="stats" title="Performance">
+      <i class="dot"></i><i class="spin"></i><span id="pFps">–</span><span class="u">fps</span><canvas id="spark" width="88" height="32"></canvas><span id="pTag">…</span>
+    </button>
+    <div class="tools">
+      <button id="tPhoto" class="ib glass" aria-pressed="false" aria-label="Photo mode" title="Photo (P)"><svg viewBox="0 0 24 24"><path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.5-2h6.6l1.5 2H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.7"/><path d="M17.5 9.5h.01"/></svg></button>
+      <button id="tPause" class="ib glass" aria-pressed="false" aria-label="Pause rendering" title="Pause (Space)"><svg viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14"/></svg></button>
+      <button id="tHide" class="ib glass" aria-label="Hide interface" title="Hide interface (H)"><svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c5 0 9 6 9 6a17 17 0 0 1-3.2 3.7M6.3 7.6A17 17 0 0 0 3 12s4 6 9 6a9 9 0 0 0 3.4-.7M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
+    </div>
+  </div>
+  <section id="stats" class="glass" hidden aria-label="Performance">
+    <div class="sh2"><div><span class="big" id="sFps">–</span><span class="u">fps</span></div><div id="sMs">– ms</div></div>
+    <canvas id="graph"></canvas>
+    <div class="gl"><span id="gMin">min –</span><span id="gAvg">avg –</span><span id="gMax">max –</span></div>
+    <dl id="sRows"></dl>
+  </section>
+  <section id="sheet" class="glass" aria-labelledby="shTitle">
+    <div class="shd"><h2 id="shTitle">Scenes</h2><button id="shClose" class="ib" aria-label="Close panel"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
+    <div id="panes">
+      <div class="pane" data-p="scenes"></div>
+      <div class="pane" data-p="render" hidden></div>
+      <div class="pane" data-p="look" hidden></div>
+      <div class="pane" data-p="camera" hidden></div>
+      <div class="pane" data-p="compare" hidden></div>
+      <div class="pane" data-p="bench" hidden></div>
+      <div class="pane" data-p="lights" hidden></div>
+      <div class="pane" data-p="photo" hidden></div>
+      <div class="pane" data-p="build" hidden></div>
+    </div>
+  </section>
+  <nav id="dock" class="glass" role="tablist" aria-label="Controls">
+    <button class="tab" role="tab" data-p="scenes" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><circle cx="17" cy="17" r="3.6"/></svg><span>Scenes</span></button>
+    <button class="tab" role="tab" data-p="render" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 4 20 19H4Z"/><path d="M1.5 13.5 9 12M14.5 11.2 22.5 8.5M15.3 12.8 22.5 13M15 14.5 21.5 17.5"/></svg><span>Render</span></button>
+    <button class="tab" role="tab" data-p="look" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><span>Look</span></button>
+    <button class="tab" role="tab" data-p="camera" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.5-2h6.6l1.5 2H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.7"/></svg><span>Camera</span></button>
+    <button class="tab" role="tab" data-p="lights" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3Z"/></svg><span>Lights</span></button>
+    <button class="tab" role="tab" data-p="build" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 8v8l-8 4.5L4 16V8Z"/><path d="M4 8l8 4.5L20 8M12 12.5V20.5"/></svg><span>Build</span></button>
+  </nav>
+  <div id="af" hidden></div><div id="afGrid" hidden></div>
+  <div id="joy" hidden><div id="joyRing" aria-label="Move"><i id="joyKnob"></i></div><div class="ud"><button id="joyU" class="glass" aria-label="Rise"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><button id="joyD" class="glass" aria-label="Sink"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
+  <div id="pframe" hidden></div>
+  <div id="photoBar" class="glass" hidden><button class="ib" id="pbClose" type="button" aria-label="Leave photo mode"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <button class="pbset" id="pbSet" type="button"><span id="pbSize"></span><small>Photo settings</small></button>
+    <button id="pbShutter" type="button" aria-label="Take photo"><i></i></button></div>
+  <div id="photoBusy" class="modal" hidden><div class="glass mcard"><b>Rendering photo</b><div class="prog"><i id="pbBar"></i></div><div id="pbMsg" class="note"></div><div class="row-btns"><button class="btn" id="pbCancel" type="button">Cancel</button></div></div></div>
+  <div id="photoDone" class="modal" hidden><div class="glass mcard"><img id="pdImg" alt="Your rendered photo"><div id="pdInfo" class="note"></div>
+    <div class="row-btns"><button class="btn primary" id="pdSave" type="button">Save to device</button><button class="btn" id="pdClose" type="button">Close</button></div>
+    <p class="note">On a phone, choose Save Image in the share sheet.</p></div></div>
+  <div id="sel" hidden></div>
+  <div id="xh" hidden><svg viewBox="0 0 30 30"><path d="M15 1v9M15 20v9M1 15h9M20 15h9"/><circle cx="15" cy="15" r="1.6"/></svg></div>
+  <div id="placeBar" class="glass" hidden><span id="placeMsg"></span><button class="btn" id="placeNo" type="button">Cancel</button><button class="btn" id="placeCam" type="button" hidden>At camera</button><button class="btn primary" id="placeOk" type="button">Fire</button></div>
+  <div id="toast" class="glass" role="status" aria-live="polite"></div>
+  <div id="hint" class="glass" hidden>
+    <h3>Move around the scene</h3>
+    <div class="gest" id="hintList"></div>
+    <div class="row-btns"><button class="btn primary" id="hintOk">Got it</button></div>
+    <p class="credit"><span class="ver"></span> · made by AAxeL08</p>
+  </div>
+</div>
+<button id="showUI" class="glass" hidden aria-label="Show interface" title="Show interface (H)"><svg viewBox="0 0 24 24"><path d="M2.5 12S6.5 5.5 12 5.5 21.5 12 21.5 12 17.5 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+<div id="err"></div>
+
+<script>
+/*@@JS@@*/
+</script>

@@ -1,0 +1,332 @@
+{
+ "grass": {
+  "id": "sparse_grass",
+  "role": "grass",
+  "src": "https://polyhaven.com/a/sparse_grass",
+  "license": "CC0",
+  "mean": [
+   0.0809,
+   0.0487,
+   0.0083
+  ]
+ },
+ "grass_lush": {
+  "id": "leafy_grass",
+  "role": "grass_lush",
+  "src": "https://polyhaven.com/a/leafy_grass",
+  "license": "CC0",
+  "mean": [
+   0.3187,
+   0.2345,
+   0.105
+  ]
+ },
+ "grass_dry": {
+  "id": "withered_grass",
+  "role": "grass_dry",
+  "src": "https://polyhaven.com/a/withered_grass",
+  "license": "CC0",
+  "mean": [
+   0.4228,
+   0.3027,
+   0.1997
+  ]
+ },
+ "forest_floor": {
+  "id": "forrest_ground_01",
+  "role": "forest_floor",
+  "src": "https://polyhaven.com/a/forrest_ground_01",
+  "license": "CC0",
+  "mean": [
+   0.2917,
+   0.2482,
+   0.1201
+  ]
+ },
+ "forest_leaves": {
+  "id": "leaves_forest_ground",
+  "role": "forest_leaves",
+  "src": "https://polyhaven.com/a/leaves_forest_ground",
+  "license": "CC0",
+  "mean": [
+   0.1976,
+   0.1175,
+   0.0452
+  ]
+ },
+ "dirt": {
+  "id": "dirt",
+  "role": "dirt",
+  "src": "https://polyhaven.com/a/dirt",
+  "license": "CC0",
+  "mean": [
+   0.1248,
+   0.0851,
+   0.0484
+  ]
+ },
+ "dry_ground": {
+  "id": "dry_ground_01",
+  "role": "dry_ground",
+  "src": "https://polyhaven.com/a/dry_ground_01",
+  "license": "CC0",
+  "mean": [
+   0.2387,
+   0.1995,
+   0.147
+  ]
+ },
+ "dry_mud": {
+  "id": "mud_cracked_dry_03",
+  "role": "dry_mud",
+  "src": "https://polyhaven.com/a/mud_cracked_dry_03",
+  "license": "CC0",
+  "mean": [
+   0.6322,
+   0.4015,
+   0.224
+  ]
+ },
+ "beach_sand": {
+  "id": "coast_sand_01",
+  "role": "beach_sand",
+  "src": "https://polyhaven.com/a/coast_sand_01",
+  "license": "CC0",
+  "mean": [
+   0.2251,
+   0.1723,
+   0.1086
+  ]
+ },
+ "desert_sand": {
+  "id": "sand_01",
+  "role": "desert_sand",
+  "src": "https://polyhaven.com/a/sand_01",
+  "license": "CC0",
+  "mean": [
+   0.3797,
+   0.3044,
+   0.161
+  ]
+ },
+ "gravel": {
+  "id": "gravel",
+  "role": "gravel",
+  "src": "https://polyhaven.com/a/gravel",
+  "license": "CC0",
+  "mean": [
+   0.0842,
+   0.0516,
+   0.0265
+  ]
+ },
+ "rocky_ground": {
+  "id": "rocky_terrain_02",
+  "role": "rocky_ground",
+  "src": "https://polyhaven.com/a/rocky_terrain_02",
+  "license": "CC0",
+  "mean": [
+   0.0825,
+   0.0776,
+   0.0136
+  ]
+ },
+ "rock": {
+  "id": "rock_surface",
+  "role": "rock",
+  "src": "https://polyhaven.com/a/rock_surface",
+  "license": "CC0",
+  "mean": [
+   0.1592,
+   0.1184,
+   0.0828
+  ]
+ },
+ "cliff": {
+  "id": "cliff_side",
+  "role": "cliff",
+  "src": "https://polyhaven.com/a/cliff_side",
+  "license": "CC0",
+  "mean": [
+   0.2107,
+   0.0908,
+   0.0333
+  ]
+ },
+ "scree": {
+  "id": "gray_rocks",
+  "role": "scree",
+  "src": "https://polyhaven.com/a/gray_rocks",
+  "license": "CC0",
+  "mean": [
+   0.1963,
+   0.1729,
+   0.1357
+  ]
+ },
+ "lichen_rock": {
+  "id": "lichen_rock",
+  "role": "lichen_rock",
+  "src": "https://polyhaven.com/a/lichen_rock",
+  "license": "CC0",
+  "mean": [
+   0.0691,
+   0.0551,
+   0.0392
+  ]
+ },
+ "mossy_rock": {
+  "id": "mossy_rock",
+  "role": "mossy_rock",
+  "src": "https://polyhaven.com/a/mossy_rock",
+  "license": "CC0",
+  "mean": [
+   0.1646,
+   0.1572,
+   0.1016
+  ]
+ },
+ "snow": {
+  "id": "snow_02",
+  "role": "snow",
+  "src": "https://polyhaven.com/a/snow_02",
+  "license": "CC0",
+  "mean": [
+   0.3772,
+   0.3766,
+   0.3866
+  ]
+ },
+ "dark_rock": {
+  "id": "dark_rock",
+  "role": "dark_rock",
+  "src": "https://polyhaven.com/a/dark_rock",
+  "license": "CC0",
+  "mean": [
+   0.0154,
+   0.0119,
+   0.0088
+  ]
+ },
+ "mars_sand": {
+  "id": "red_sand",
+  "role": "mars_sand",
+  "src": "https://polyhaven.com/a/red_sand",
+  "license": "CC0",
+  "mean": [
+   0.2164,
+   0.1004,
+   0.0599
+  ]
+ },
+ "mars_ground": {
+  "id": "terrain_red_01",
+  "role": "mars_ground",
+  "src": "https://polyhaven.com/a/terrain_red_01",
+  "license": "CC0",
+  "mean": [
+   0.0818,
+   0.0537,
+   0.0355
+  ]
+ },
+ "mars_cracked": {
+  "id": "cracked_red_ground",
+  "role": "mars_cracked",
+  "src": "https://polyhaven.com/a/cracked_red_ground",
+  "license": "CC0",
+  "mean": [
+   0.129,
+   0.0685,
+   0.0337
+  ]
+ },
+ "mars_stony": {
+  "id": "red_laterite_soil_stones",
+  "role": "mars_stony",
+  "src": "https://polyhaven.com/a/red_laterite_soil_stones",
+  "license": "CC0",
+  "mean": [
+   0.1312,
+   0.0493,
+   0.0277
+  ]
+ },
+ "mars_rock": {
+  "id": "dry_riverbed_rock",
+  "role": "mars_rock",
+  "src": "https://polyhaven.com/a/dry_riverbed_rock",
+  "license": "CC0",
+  "mean": [
+   0.1426,
+   0.097,
+   0.0721
+  ]
+ },
+ "bark_broadleaf": {
+  "id": "bark_brown_02",
+  "role": "bark_broadleaf",
+  "src": "https://polyhaven.com/a/bark_brown_02",
+  "license": "CC0",
+  "mean": [
+   0.1273,
+   0.1047,
+   0.0631
+  ]
+ },
+ "bark_pine": {
+  "id": "pine_bark",
+  "role": "bark_pine",
+  "src": "https://polyhaven.com/a/pine_bark",
+  "license": "CC0",
+  "mean": [
+   0.1373,
+   0.0882,
+   0.0532
+  ]
+ },
+ "bark_smooth": {
+  "id": "bark_platanus",
+  "role": "bark_smooth",
+  "src": "https://polyhaven.com/a/bark_platanus",
+  "license": "CC0",
+  "mean": [
+   0.0977,
+   0.0676,
+   0.048
+  ]
+ },
+ "bark_palm": {
+  "id": "palm_bark",
+  "role": "bark_palm",
+  "src": "https://polyhaven.com/a/palm_bark",
+  "license": "CC0",
+  "mean": [
+   0.0985,
+   0.076,
+   0.0591
+  ]
+ },
+ "bark_acacia": {
+  "id": "fever_tree_bark",
+  "role": "bark_acacia",
+  "src": "https://polyhaven.com/a/fever_tree_bark",
+  "license": "CC0",
+  "mean": [
+   0.0818,
+   0.0884,
+   0.0413
+  ]
+ },
+ "bark_willow": {
+  "id": "bark_willow",
+  "role": "bark_willow",
+  "src": "https://polyhaven.com/a/bark_willow",
+  "license": "CC0",
+  "mean": [
+   0.0552,
+   0.037,
+   0.0242
+  ]
+ }
+}
