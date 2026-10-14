@@ -30,7 +30,7 @@ CUST.forEach(custReg);
 
 let photoMode=false,photoTile=null,photoJob=null;   // photo mode: framing on screen; a tile being rendered; the photo in progress
 if(!SCENES[S.scene])S.scene='blue planet';
-if(freshStart&&SCENES[S.scene].cosmos)S.aeMode='average';   // space scenes start with the camera metering for itself
+if(freshStart&&SCENES[S.scene].cosmos){const sc=SCENES[S.scene];S.aeMode=sc.cosmos.kind===0?'highlight':'average';Object.assign(S,sc.hint||{});}   // a first visit starts the way picking the scene would: its own metering, sun and exposure
 if(!(S.renderMode in MIDX))S.renderMode='hybrid';
 if(S.autoOrbit){S.autoMove='turntable';delete S.autoOrbit;}S.camMode='orbit';
 

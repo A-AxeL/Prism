@@ -47,7 +47,8 @@ async function bmRun(full,limit){
       if(t.view){bmStand(t.view);await bmSettle();}
       // warm up (the planet streams in its tiles), then measure while the camera turns
       const turn=dt=>{if(S.camMode==='fly')cam.lyaw+=dt*.12;else cam.yaw+=dt*.12;nudge();};
-      const lap=ms=>new Promise(res=>{let tp=performance.now();const t0=tp,wall=[];const f=now=>{const dt=(now-tp)/1000;tp=now;wall.push(dt*1000);turn(dt);
+      // time while the tab is hidden (no frames are drawn) is left out and the lap extended
+      const lap=ms=>new Promise(res=>{let tp=performance.now(),t0=tp;const wall=[];const f=now=>{let dt=(now-tp)/1000;tp=now;if(BM_.hid){t0+=dt*1000;dt=0;BM_.hid=document.hidden;}else wall.push(dt*1000);turn(dt);
         if(now-t0<ms&&!BM_.stop)requestAnimationFrame(f);else res(wall.slice(2));};requestAnimationFrame(f);});
       await lap(t.view?3000:1500);BM_.ms=[];BM_.rec=true;const wall=await lap(full?3500:2500);BM_.rec=false;
       const a=BM_.ms.slice(2).sort((x,y)=>x-y),q=f=>a.length?a[Math.min(a.length-1,Math.floor(a.length*f))]:0,w=wall.reduce((s,x)=>s+x,0);
@@ -105,9 +106,10 @@ async function bmSend(){const b=$('bmSend'),msg=$('bmSent');if(!bmLast||!BENCH_U
     else await fetch(BENCH_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
     msg.textContent='Sent. Thank you!';b.textContent='Sent';}
   catch(e){msg.textContent='Could not send: '+(e.message||e);b.disabled=false;}}
-paneEl('bench').innerHTML=`<p class="note">Times every scene, preset and method on this device. Your settings are restored afterward. You choose whether to send the results.</p>
+paneEl('bench').innerHTML=`<p class="note">Times every scene, preset and method on this device. Keep Prism on screen while it runs. Your settings are restored afterward. You choose whether to send the results.</p>
 <div class="row-btns"><button class="btn primary" id="bmQuick">Quick · about 2 min</button><button class="btn" id="bmFull">Full · about 10 min</button><button class="btn" id="bmStop" hidden>Stop</button></div>
 <div id="bmProg" hidden><div class="prog"><i id="bmBar"></i></div><div id="bmMsg"></div></div><div id="bmOut"></div>`;
+document.addEventListener('visibilitychange',()=>{if(BM_&&document.hidden){BM_.hid=true;toast('Benchmark paused while Prism is hidden');}});
 $('bmQuick').onclick=()=>bmRun(false);$('bmFull').onclick=()=>bmRun(true);$('bmStop').onclick=()=>{if(BM_)BM_.stop=true;};
 $('goBench').onclick=()=>openPane('bench');
 window.__prismBench={run:bmRun,get last(){return bmLast;}};
