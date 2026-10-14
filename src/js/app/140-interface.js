@@ -58,7 +58,7 @@ const PANES={
   SW('upscale','Sharp upscaling',{help:'Renders fewer pixels and rebuilds a sharp full image from recent frames. Hybrid only.'}),
   SW('adaptive','Adaptive resolution',{help:'Adjusts render scale to hold the target frame rate.'}),
   RG('target','Target frame rate',20,60,5,v=>v+' fps',{when:()=>S.adaptive}),
-  EB('Light'),
+  EB('Light',{when:obj}),EB('Detail',{when:cos}),
   RG('bounces','Bounces',1,8,1,null,{when:obj}),
   SG('giRate','Indirect light traced on',[['1/1','Every pixel'],['1/2','Half'],['1/4','Quarter']],{when:mode('hybrid'),help:'Fewer pixels per frame is faster.'}),
   RG('spp','Samples per frame',1,4,1,null,{when:mode('path')}),
@@ -80,6 +80,7 @@ const PANES={
    SW('accum','Keep refining when still'),
    RG('maxAcc','Stop refining after',16,2048,16,v=>v+' frames',{when:()=>S.accum}),
   ]),
+  EB('Tools'),
   {t:'html',html:'<button class="navrow" id="goCmp" type="button"><svg viewBox="0 0 24 24"><path d="M5 20v-8M11 20V5M17 20v-5M2.5 20.5h19"/></svg><span><b>Compare methods</b><small>Time and score every method on this scene</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>',when:obj},
   {t:'html',html:'<button class="navrow" id="goBench" type="button"><svg viewBox="0 0 24 24"><path d="M12 13l4-4M3.5 17a9 9 0 1 1 17 0"/><circle cx="12" cy="13" r="1.5"/></svg><span><b>Performance survey</b><small>Benchmark this device and choose whether to share the results</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>'},
   {t:'html',html:'<button class="navrow danger" id="goWipe" type="button"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg><span><b>Reset everything</b><small>Erase all saved settings and start fresh</small></span></button><p class="credit"><span class="ver"></span> · made by AAxeL08</p>'}],
@@ -104,6 +105,8 @@ const PANES={
   RG('cloudCover','Cloud cover',0,1,.01,pct,{when:()=>isPlanet()&&!custOf(S.scene)&&!!SCENES[S.scene].cosmos.clouds&&S.clouds}),
   SW('cityLights','City lights on the night side',{when:()=>isPlanet()&&!!SCENES[S.scene].cosmos.city}),
   NT(()=>'Edit this world in Build.',{when:()=>isPlanet()&&!!custOf(S.scene)}),
+  EB('Stars',{when:cos}),
+  RG('starBoost','Star brightness',0,17,.5,v=>v?'+'+v+' stops':'Real',{when:cos,help:'Real is true to life. Each stop doubles brightness.'}),
   EB('Accretion disk',{when:isKind(2)}),
   SW('doppler','Relativistic beaming',{when:isKind(2),help:'The side moving toward you is brighter and bluer.'}),
   RG('diskBright','Disk brightness',.2,3,.05,v=>v.toFixed(2),{when:isKind(2)}),
@@ -111,7 +114,7 @@ const PANES={
   SW('animate','Animate',{help:'Runs time: motion, planet spin, clouds and weather.'}),
   RG('timeSpeedI','Time speed',0,TSPD.length-1,1,i=>tspdTxt(TSPD[i]),{when:()=>isPlanet()&&peOn(),get:()=>tspdIdx(S.timeSpeed),set:i=>{S.timeSpeed=TSPD[i];save();},
     help:'1× is real time. Higher speeds are a time-lapse.'}),
-  RG('starBoost','Star brightness',0,17,.5,v=>v?'+'+v+' stops':'Real',{when:cos,help:'Real is true to life. Each stop doubles brightness.'})],
+  ],
  photo:[
   SG('photoAspect','Aspect ratio',[['screen','Screen'],['1:1','1:1'],['4:5','4:5'],['3:4','3:4'],['2:3','2:3'],['9:16','9:16'],['3:2','3:2'],['16:9','16:9'],['21:9','21:9']]),
   SG('photoRes','Size (long edge)',[['1080','1080'],['2048','2K'],['3072','3K'],['4096','4K']]),
@@ -122,7 +125,7 @@ const PANES={
   NT(()=>photoInfo()),
   {t:'html',html:'<div class="row-btns"><button class="btn primary" id="ppTake" type="button">Take photo</button></div>'}],
  camera:[
-  {t:'sub',k:'camSub',opts:[['move','Move'],['lens','Lens'],['exposure','Exposure']]},
+  {t:'sub',k:'camSub',opts:[['move','Move'],['lens','Lens'],['exposure','Exposure'],['color','Color']]},
   {t:'html',html:'<dl class="readout" id="camInfo"></dl>'},
   // move
   SG('camMode','Camera',[['orbit','Orbit'],['fly','Fly']],{sub:'move'}),
@@ -181,16 +184,18 @@ const PANES={
   SG('tonemap','Tone mapping',[['camera','Camera'],['aces','Filmic'],['reinhard','Soft'],['none','Clip']],{sub:'exposure',help:'Camera keeps the color of bright lights, like a photo. Filmic bleaches them toward white.'}),
   SG('drMode','Dynamic range',[['phone','Phone'],['pro','Pro camera'],['eye','Eye'],['ideal','Unlimited']],{sub:'exposure',
     help:'Shadow detail and glare from bright light. Bright planets hide the stars, as in real photos.'}),
-  RG('bloom','Bloom',0,1,.05,pct,{sub:'exposure',when:()=>fExt,help:'Soft glow around bright lights, from light scattered in the lens.'}),
-  EB('Color and film',{sub:'exposure'}),
-  RG('wb','White balance',2500,10000,100,v=>Math.round(v)+' K',{sub:'exposure',help:'Lower is cooler, higher is warmer. 6500 K is neutral.'}),
-  RG('wbAdapt','Adapt to daylight',0,1,.01,v=>Math.round(v*100)+'%',{sub:'exposure',help:'On planets, adapts the camera to local daylight, like rover photos. 100%: midday light looks white. 0%: raw light.'}),
   RG('localTM','Local tone mapping',0,1,.01,v=>Math.round(v*100)+'%',{sub:'exposure',help:'Like the eye or phone HDR: brightens dark areas under a bright sky. 0% is a plain camera.'}),
-  RG('wbAuto','Auto white balance',0,1,.01,v=>Math.round(v*100)+'%',{sub:'exposure',help:'Removes the scene’s overall warm or cool cast, like a phone camera. 0% keeps natural color.'}),
-  RG('sat','Saturation',0,2,.05,pct,{sub:'exposure'}),
-  RG('chromab','Chromatic aberration',0,1,.05,pct,{sub:'exposure',help:'Red and blue color fringes toward the edges of the frame, like a real lens.'}),
-  RG('vignette','Vignette',0,1,.05,pct,{sub:'exposure',help:'Natural lens darkening toward the corners. Stronger with wide angles.'}),
-  RG('grain','Sensor noise',0,1,.05,pct,{sub:'exposure',help:'Grain like a real sensor, stronger in shadows.'})]
+  // color and lens effects
+  EB('White balance',{sub:'color'}),
+  RG('wb','White balance',2500,10000,100,v=>Math.round(v)+' K',{sub:'color',help:'Lower is cooler, higher is warmer. 6500 K is neutral.'}),
+  RG('wbAdapt','Adapt to daylight',0,1,.01,v=>Math.round(v*100)+'%',{sub:'color',when:isPlanet,help:'On planets, adapts the camera to local daylight, like rover photos. 100%: midday light looks white. 0%: raw light.'}),
+  RG('wbAuto','Auto white balance',0,1,.01,v=>Math.round(v*100)+'%',{sub:'color',help:'Removes the scene’s overall warm or cool cast, like a phone camera. 0% keeps natural color.'}),
+  RG('sat','Saturation',0,2,.05,pct,{sub:'color'}),
+  EB('Lens effects',{sub:'color'}),
+  RG('bloom','Bloom',0,1,.05,pct,{sub:'color',when:()=>fExt,help:'Soft glow around bright lights, from light scattered in the lens.'}),
+  RG('chromab','Chromatic aberration',0,1,.05,pct,{sub:'color',help:'Red and blue color fringes toward the edges of the frame, like a real lens.'}),
+  RG('vignette','Vignette',0,1,.05,pct,{sub:'color',help:'Natural lens darkening toward the corners. Stronger with wide angles.'}),
+  RG('grain','Sensor noise',0,1,.05,pct,{sub:'color',help:'Grain like a real sensor, stronger in shadows.'})]
 };
 
 const ctl={},rows=[];const reg=(k,f)=>{(ctl['_'+k]=ctl['_'+k]||[]).push(f);ctl[k]=()=>ctl['_'+k].forEach(g=>g());};
@@ -239,9 +244,10 @@ function drawScenes(){const host=paneEl('scenes');host.innerHTML='';
    if(pl){const q=d.planets[d.cur||0]||{};const c=q.type==='gas'?(q.gas||{}).c1||'#c99c64':(q.surf||{}).low||'#2d6a3a';sw=`radial-gradient(circle at 40% 38%,#fff6 0,${c} 22%,#0b1220 52%,#060810 56%)`;}
    else{const cs=d.objs.filter(o=>o.mat).slice(0,4).map(o=>o.mat.col);sw=`linear-gradient(135deg,${(cs.length?cs:['#556']).concat(cs.length===1?cs:[]).join(',')})`;}
    META[k]={cat:'Mine',name:d.name,tag:pl?`${d.planets.length} planet${d.planets.length>1?'s':''} · your system`:`${d.objs.length} object${d.objs.length===1?'':'s'} · your scene`,sw};}
- for(const cat of ['Mine','Space','Studio']){
-  const ks=Object.keys(SCENES).filter(k=>(META[k]||{cat:'Studio'}).cat===cat);
-  host.appendChild(mk('div','eb',{Mine:'Your scenes',Space:'Space · ray-marched',Studio:'Studio · light and glass'}[cat]));
+ const ORD=['blue planet','dust world','ringed giant','black hole'],rank=k=>{const i=ORD.indexOf(k);return i<0?99:i;};
+ for(const cat of CUST.length?['Mine','Space','Studio']:['Space','Studio','Mine']){
+  const ks=Object.keys(SCENES).filter(k=>(META[k]||{cat:'Studio'}).cat===cat).sort((a,b)=>rank(a)-rank(b));
+  host.appendChild(mk('div','eb',{Mine:'Your scenes',Space:'Space',Studio:'Studio · light and glass'}[cat]));
   const g=mk('div','cards');
   for(const k of ks){const m=META[k]||{name:cap1(k),tag:'',sw:'#222'},b=mk('button','card');b.type='button';b.dataset.s=k;
     const sw=mk('div','swc');sw.style.background=m.sw;b.append(sw,mk('b','',''),mk('small','',''));b.children[1].textContent=m.name;b.children[2].textContent=m.tag;
@@ -265,7 +271,7 @@ $('cmpRun').onclick=()=>runBench();$('goCmp').onclick=()=>openPane('compare');
 // gestures (touch vs pointer wording)
 const coarse=matchMedia('(pointer:coarse)').matches;
 const GEST=coarse?[['1 finger drag','Orbit around the scene'],['Pinch','Zoom in and out'],['2 finger drag','Pan (object scenes)'],['Double-tap','Reset the view'],['Tap','Close this panel']]
-  :[['Drag','Orbit around the scene'],['Scroll','Zoom in and out'],['Right-drag','Pan (object scenes)'],['Space · H · R','Pause · hide · reset'],['1 – 5','Open a panel']];
+  :[['Drag','Orbit around the scene'],['Scroll','Zoom in and out'],['Right-drag','Pan (object scenes)'],['Space · H · R','Pause · hide · reset'],['1 – 6','Open a panel'],['P','Photo mode']];
 const gestHTML=GEST.map(([a,b])=>`<kbd>${a}</kbd><span>${b}</span>`).join('');
 $('hintList').innerHTML=gestHTML;$('bHelp').onclick=()=>{closePane();$('hint').hidden=false;};
 $('bReset').onclick=()=>{resetView();toast('View reset');};
