@@ -3,6 +3,9 @@
 Shown in the app after an update (menu › What’s new shows them all). Newest first. Each release is a
 `## <release> (date)` heading matching "release" in project.json, followed by `- ` items written for players.
 
+## 0.46.1 (October 2026)
+- Fixed some UI stuff.
+
 ## 0.46.0 (October 2026)
 - Shaders are compiled once on the first launch, with a progress window, and kept by your browser. Switching scenes and changing settings no longer pauses while shaders compile.
 - What’s new: after each update, these notes appear once. Find them any time in Render › Tools.
