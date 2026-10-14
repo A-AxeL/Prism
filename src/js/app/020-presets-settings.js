@@ -16,7 +16,8 @@ const PKEYS=new Set(Object.values(PRESETS).flatMap(Object.keys));
 const S=Object.assign({afPoints:'15',afPriority:'near',camMode:'orbit',autoMove:'off',moveSpeed:1,inertia:true,flySpeed:2,lookSens:1,roll:0,proj:'persp',fishFov:180,focusMode:'manual',afSpeed:6,blades:'0',anamorphic:false,showFocus:true,aeMode:'manual',ev:0,aeSpeed:2,wb:6500,wbAdapt:1,wbAuto:0,localTM:.4,sat:1,vignette:.2,grain:0,renderMode:'hybrid',ssCache:true,restir:true,upscale:true,cbMirror:false,drMode:'pro',bloom:.5,chromab:.1,starBoost:0,fovAxis:'short',photoAspect:'screen',photoRes:'2048',photoQ:'128',photoFmt:'jpg',preset:'balanced',scene:'blue planet',atmDensity:1,clouds:true,cloudCover:.5,cityLights:true,doppler:true,diskBright:1,stars:1,glassIOR:1.5,glassDensity:1.6,rough:.08,sun:false,sunAngle:40,sunAz:35,sky:'night',
   exposure:1.1,tonemap:'aces',fov:55,animate:false,timeSpeed:1,focus:6,floor:'matte',fog:.02,showGraph:true},PRESETS.balanced);
 const VERSION='dev';   // bump with every release
-const BUILD='dev',BENCH_URL='',REPO='';   // filled in by the build from project.json
+const BUILD='dev',BENCH_URL='',REPO='';
+const RELEASE='',NOTES=[];   // the release and its notes (RELEASE_NOTES.md), filled in by the build   // filled in by the build from project.json
 let freshStart=true;try{const o=JSON.parse(localStorage.getItem('prism3')||'{}');freshStart=!Object.keys(o).length;Object.assign(S,o);}catch(e){}
 let wiping=false;const save=()=>{if(wiping)return;try{localStorage.setItem('prism3',JSON.stringify(S));}catch(e){}};
 

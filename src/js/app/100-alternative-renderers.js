@@ -68,9 +68,9 @@ vec3 cheapRad(vec3 o,vec3 d){vec3 n;int id;float t=hitScene(o,d,n,id);if(id==-2)
 void glassDet(inout vec3 ro,inout vec3 rd,inout vec3 thr,inout vec3 col,vec3 p,vec3 n,vec3 alb,float ior,float dens,float t){
   bool inside=dot(rd,n)>0.;vec3 nn=inside?-n:n;
   if(inside&&dens>0.)thr*=exp(-(1.-alb)*dens*t);
-#if DISP
+if(uDisp==1){
   ior+=(gWl-.5)*gDk;gDispHit=true;
-#endif
+}
   float e=inside?ior:1./ior,ci=-dot(rd,nn);float r0=(1.-ior)/(1.+ior);r0*=r0;float m=1.-ci,m2=m*m,fr=r0+(1.-r0)*m2*m2*m;
   vec3 rf=refract(rd,nn,e);
   if(dot(rf,rf)==0.){rd=reflect(rd,nn);ro=p+nn*1e-3;return;}
@@ -380,9 +380,9 @@ void main(){
   bool doInd=!valid||k==uFrame%R;
   gWl=rnd();gDispHit=false;
   vec3 base,albT,ind;float diff0;hybrid(ro,rd,t,n,id,doInd,base,albT,ind,diff0);
-#if DISP
+if(uDisp==1){
   if(gDispHit){vec3 w=specW(gWl);base*=w;albT*=w;}
-#endif
+}
   base=min(safe(base,h1.rgb),vec3(20.));ind=fc(safe(ind,h0.rgb),1);albT=safe(albT,h2.rgb);d0=safeD(d0);
   float be=blend;
   if(valid&&uReproj==1){h1.rgb=min(h1.rgb,base*3.+vec3(1.5));blend=max(1./hn,diff0<.5?.5:.35);be=max(1./hn,uMinA);}
@@ -419,9 +419,9 @@ void main(){
     vec3 c=sdfRender(ro,rd,dd);
 #endif
     if(s==0)d0=dd;
-    #if DISP
+    if(uDisp==1){
     if(gDispHit)c*=specW(wl);
-    #endif
+}
     acc+=min(safe(c,vec3(0)),vec3(20.));accA+=safe(gAlb0,vec3(1));   // color plus the first surface's albedo (used to separate lighting from texture while moving)
   }
   acc/=float(uSpp);accA/=float(uSpp);d0=safeD(d0);
@@ -551,23 +551,30 @@ const prog=f=>progVF(VS,f);
 let TR,OUT,pending=null,broken=false;
 const pExt=gl.getExtension('KHR_parallel_shader_compile');
 // compile without blocking the page where the browser allows it; the old image stays on screen meanwhile
+// Every program is kept once compiled (PCACHE, keyed by its source), so going back to a scene or a setting is instant;
+// the shader warm-up (385) fills the cache ahead of time. A build still compiling is handed back to the warm-up, not thrown away.
+const PCACHE=new Map();
+function pcUse(fs,rec){PCACHE.delete(fs);PCACHE.set(fs,rec);
+  if(PCACHE.size>64)for(const [k,x] of PCACHE){if(PCACHE.size<=64)break;if(x!==rec&&x!==TR){gl.deleteProgram(x.p);PCACHE.delete(k);}}return rec;}
+function progU(p){const u={},n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);u[a.name.replace('[0]','')]=gl.getUniformLocation(p,a.name);}return u;}
 function build(){
-  if(pending){if(pending.pe){for(const x of pending.list)if(!x.hit){gl.deleteProgram(x.p);gl.deleteShader(x.v);gl.deleteShader(x.f);}}else{gl.deleteProgram(pending.p);gl.deleteShader(pending.v);gl.deleteShader(pending.f);}pending=null;}   // a newer build replaces one still compiling
+  if(pending){if(pending.pe){for(const x of pending.list)if(!x.hit)warmAdopt(x);}else warmAdopt(pending);pending=null;document.body.classList.remove('busy');}   // a newer build replaces one still compiling
   if(peOn()){peBuild();return;}
-  const v=gl.createShader(gl.VERTEX_SHADER),f=gl.createShader(gl.FRAGMENT_SHADER),p=gl.createProgram();
-  gl.shaderSource(v,VS);gl.compileShader(v);gl.shaderSource(f,isCosmos()?cosmosFS():traceFS());gl.compileShader(f);
-  gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);pending={p,v,f};document.body.classList.add('busy');
+  const fs=isCosmos()?cosmosFS():traceFS(),hit=PCACHE.get(fs);
+  if(hit){TR=pcUse(fs,hit);broken=false;errEl.style.display='none';try{OUT=OUT||prog(outFS);}catch(e){}reset();return;}
+  pending=warmTake('tr|'+fs)||(()=>{const v=gl.createShader(gl.VERTEX_SHADER),f=gl.createShader(gl.FRAGMENT_SHADER),p=gl.createProgram();
+    gl.shaderSource(v,VS);gl.compileShader(v);gl.shaderSource(f,fs);gl.compileShader(f);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);return {p,v,f};})();
+  pending.fs=fs;document.body.classList.add('busy');
   if(!pExt)pollBuild(true);
 }
 function pollBuild(force){
   if(!pending)return true;
   if(pending.pe)return pePoll(force);
   if(!force&&!gl.getProgramParameter(pending.p,pExt.COMPLETION_STATUS_KHR))return false;
-  const {p,v,f}=pending;pending=null;document.body.classList.remove('busy');
+  const {p,v,f}=pending,pending_fs=pending.fs;pending=null;document.body.classList.remove('busy');
   if(!gl.getProgramParameter(p,gl.LINK_STATUS)){broken=true;errEl.style.display='grid';errEl.textContent='Shader error:\n'+(gl.getShaderInfoLog(f)||'')+(gl.getShaderInfoLog(v)||'')+(gl.getProgramInfoLog(p)||'');gl.deleteProgram(p);gl.deleteShader(v);gl.deleteShader(f);return true;}
   gl.deleteShader(v);gl.deleteShader(f);
-  const u={},n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);u[a.name.replace('[0]','')]=gl.getUniformLocation(p,a.name);}
-  if(TR)gl.deleteProgram(TR.p);TR={p,u};broken=false;errEl.style.display='none';
+  TR=pcUse(pending_fs,{p,u:progU(p)});broken=false;errEl.style.display='none';
   try{OUT=OUT||prog(outFS);}catch(e){broken=true;errEl.style.display='grid';errEl.textContent='Shader error:\n'+e;}
   reset();return true;
 }

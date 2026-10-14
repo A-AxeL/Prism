@@ -10,6 +10,9 @@ const {autoUpdater} = require('electron-updater');
 // use the fast GPU on laptops with two, and keep WebGL on even for GPUs Chromium is unsure about
 app.commandLine.appendSwitch('force_high_performance_gpu');
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
+// room on disk for every compiled shader, so the warm-up only does real work once per version
+app.commandLine.appendSwitch('gpu-disk-cache-size-kb', String(1024 * 1024));
+app.commandLine.appendSwitch('gpu-program-cache-size-kb', String(256 * 1024));
 
 protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: {standard: true, secure: true, supportFetchAPI: true, stream: true}}]);
 const root = path.join(__dirname, 'app');

@@ -8,7 +8,7 @@ function tick(now){
   if(cap&&now-last<1000/cap-3)return;
   const dt=Math.min(100,Math.max(.5,now-last));last=now;
   ft[hi]=dt;hi=(hi+1)%HIST;fpsS+=(1000/dt-fpsS)*.08;if(!isFinite(fpsS))fpsS=60;
-  meterPoll();aeStep(dt);
+  meterPoll();aeStep(dt);warmStep();
   if(pending&&!pollBuild(false)){uiFrame();return;}
   if(!pending&&TR&&!broken&&!isCosmos()&&(nLz>0)!==lzBuilt)build();
   if(paused||broken||!TR){if(needBlit&&TR&&!broken&&OUT){blit();needBlit=false;}uiFrame();return;}
@@ -63,7 +63,7 @@ function traceDraw(V,CO,re){if(CO&&TR&&TR.pe){peFrame(V,CO);return {taa:false,ji
   gl.uniform1i(u.uPrev,0);gl.uniform1i(u.uPrev1,1);gl.uniform1i(u.uPrev2,2);gl.uniform1i(u.uPrev3,3);gl.uniform1i(u.uGiRate,giN());gl.uniform1f(u.uMinA,S.tBlend);gl.uniform1i(u.uCache,(S.ssCache&&frame>0&&P.eye&&S.proj==='persp'&&!photoTile)?1:0);gl.uniform1i(u.uSdfSteps,S.sdfSteps);
   gl.uniform1f(u.uBlend,re?Math.max(S.tBlend,1/(frame+1)):1/(frame+1));gl.uniform1i(u.uReproj,re?1:0);
   const chain=S.renderMode==='hybrid'||S.renderMode==='whitted';
-  gl.uniform1i(u.uMaxB,chain?S.bounces+2:(re||S.animate)?Math.min(S.motionBounces,S.bounces):S.renderMode==='path'?Math.max(S.bounces,16):S.bounces);gl.uniform1i(u.uNee,S.renderMode==='path'&&!(re||S.animate)?16:S.neeDepth);gl.uniform1f(u.uFcl,S.renderMode==='path'&&!(re||S.animate)?32:4);   // still path tracing: follow light until Russian roulette ends it, so closed rooms keep their full inter-reflected light
+  gl.uniform1i(u.uDisp,S.dispersion?1:0);gl.uniform1i(u.uMaxB,chain?S.bounces+2:(re||S.animate)?Math.min(S.motionBounces,S.bounces):S.renderMode==='path'?Math.max(S.bounces,16):S.bounces);gl.uniform1i(u.uNee,S.renderMode==='path'&&!(re||S.animate)?16:S.neeDepth);gl.uniform1f(u.uFcl,S.renderMode==='path'&&!(re||S.animate)?32:4);   // still path tracing: follow light until Russian roulette ends it, so closed rooms keep their full inter-reflected light
   gl.uniform3fv(u.uPEye,P.eye||eye);gl.uniform3fv(u.uPFw,P.fw||fw);gl.uniform3fv(u.uPRt,P.rt||rtv);gl.uniform3fv(u.uPUp,P.up||upv);
   const taa=taaOn()&&!photoTile,jit=[halton((total&15)+1,2),halton((total&15)+1,3)];gl.uniform1i(u.uTaa,taa?1:0);gl.uniform2f(u.uJit,jit[0],jit[1]);
   gl.uniform1ui(u.uFrame,(total++)>>>0);gl.uniform1i(u.uSpp,S.renderMode==='path'?S.spp:1);

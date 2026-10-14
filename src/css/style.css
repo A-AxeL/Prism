@@ -245,3 +245,15 @@ input.kel{background:linear-gradient(90deg,#ff8a2a,#ffc27a 20%,#fff1dc 40%,#f4f6
 #updBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;max-width:calc(100% - 32px);padding:8px 8px 8px 16px;border-radius:16px;background:rgba(18,22,30,.92);border:1px solid var(--line-2);font:600 13px var(--sans);backdrop-filter:blur(12px)}
 #updBar .btn{padding:6px 12px}#updBar .x{width:28px;height:28px;border-radius:50%;color:var(--dim);font-size:18px}
 .credit a{color:var(--accent);text-decoration:none}
+/* shader warm-up and release notes */
+#warm,.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(4,6,10,.55)}
+.wcard{width:min(440px,100%);max-height:calc(100% - 32px);display:flex;flex-direction:column;padding:20px;border-radius:18px;background:rgba(14,18,26,.94)}
+.wcard h3{margin:0 0 8px;font:700 17px var(--sans)}
+.wcard p{margin:0;color:var(--dim);font-size:13px;line-height:1.5}
+.wcard .wrow{display:flex;justify-content:space-between;gap:12px;color:var(--dim);font:500 12px var(--sans)}
+.wcard .wrow span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wcard .row-btns{margin-top:16px;justify-content:flex-end}
+.nscroll{overflow:auto;margin:0 -4px;padding:0 4px}
+.nscroll h4{margin:14px 0 6px;font:700 14px var(--sans)}.nscroll h4:first-child{margin-top:4px}
+.nscroll h4 small{color:var(--dim);font-weight:500;margin-left:6px}
+.nscroll ul{margin:0;padding-left:18px;color:var(--fg,#dfe6f2);font-size:13px;line-height:1.5}.nscroll li{margin:4px 0}

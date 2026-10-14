@@ -26,6 +26,15 @@ export function build({quiet = false} = {}) {
   const buildId = crypto.createHash('sha1').update(js + rd('src/css/style.css') + rd('src/page.html')).digest('hex').slice(0, 10);
   const q = v => JSON.stringify(String(v || '')).replace(/"/g, "'");
   js = js.replace(/const BUILD='[^']*',BENCH_URL='[^']*',REPO='[^']*';/, `const BUILD=${q(buildId)},BENCH_URL=${q(cfg.benchmarkUrl)},REPO=${q(cfg.repo)};`);
+  // release notes shown in the app after an update: RELEASE_NOTES.md, "## <release> (date)" headings, "- " items
+  const notes = [];
+  if (fs.existsSync(path.join(root, 'RELEASE_NOTES.md'))) for (const line of rd('RELEASE_NOTES.md').split('\n')) {
+    const h = line.match(/^## +(\d+\.\d+\.\d+)(?: +\(([^)]*)\))?/);
+    if (h) notes.push({v: h[1], date: h[2] || '', items: []});
+    else if (notes.length && /^- /.test(line)) notes[notes.length - 1].items.push(line.slice(2).trim());
+    else if (notes.length && /^ +\S/.test(line) && notes[notes.length - 1].items.length) notes[notes.length - 1].items.push(notes[notes.length - 1].items.pop() + ' ' + line.trim());
+  }
+  js = js.replace(/const RELEASE='[^']*',NOTES=\[\];/, () => `const RELEASE=${q(cfg.release)},NOTES=${JSON.stringify(notes).replace(/<\//g, '<\\/')};`);
   let page = rd('src/page.html');
   for (const [mark, text] of [['\n/*@@CSS@@*/\n', rd('src/css/style.css')], ['\n/*@@JS@@*/\n', js]]) {
     if (!page.includes(mark)) throw new Error('marker missing in src/page.html: ' + mark.trim());

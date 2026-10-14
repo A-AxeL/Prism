@@ -20,8 +20,8 @@ precision highp float;precision highp int;
 #define NPRC ${PR.length}
 #define NLN ${Math.max(1,LN.length)}
 #define NLNC ${LN.length}
-#define MAXB ${(S.renderMode==='path'?Math.max(S.bounces,16):S.bounces)+((S.renderMode==='hybrid'||S.renderMode==='whitted')?2:0)}
-#define DISP ${S.dispersion?1:0}
+#define MAXB ${S.renderMode==='path'?16:(S.renderMode==='hybrid'||S.renderMode==='whitted')?10:8}   // the real count is uMaxB, so bounces never recompile
+uniform int uDisp;
 uniform float uFcl;   // firefly clamp for indirect light (high when a still image is converging, so caustics keep their energy)
 #define FCL uFcl
 #define MODE ${MIDX[S.renderMode]||0}
@@ -375,9 +375,9 @@ vec3 trace(vec3 ro,vec3 rd,float wl,out float d0){
     }else{
       ms=0;bool inside=dot(rd,n)>0.;vec3 nn=inside?-n:n;
       float eta=ior;
-      #if DISP
+      if(uDisp==1){
       eta+=(wl-.5)*gDk;gDispHit=true;
-      #endif
+}
       if(inside&&dens>0.)thr*=exp(-(1.-alb)*dens*t);
       float e=inside?eta:1./eta,ci=-dot(rd,nn);
       float r0=(1.-eta)/(1.+eta);r0*=r0;float m=1.-ci,m2=m*m;float fr=r0+(1.-r0)*m2*m2*m;

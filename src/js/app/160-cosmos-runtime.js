@@ -22,7 +22,7 @@ function drawCosmos(u,co,re,eye,fw,rtv,upv,el,az){
   gl.uniform1f(u.uHR,co.hr||1);gl.uniform1f(u.uHM,co.hm||1);gl.uniform1f(u.uRa,co.ra||1.1);gl.uniform1f(u.uG,Array.isArray(co.g)?co.g[1]:co.g||.7);
   for(const n of ['p1','p2','p3','p4'])gl.uniform3fv(u['uP'+n[1]],co[n]||z);
   gl.uniform3fv(u.uAxis,co.axis||[0,1,0]);gl.uniform1f(u.uSea,co.sea??.5);
-  gl.uniform1f(u.uCloud,.78-.42*(co.cover??S.cloudCover));gl.uniform1f(u.uCity,S.cityLights?(co.city||0):0);
+  gl.uniform1f(u.uCloud,S.clouds?.78-.42*(co.cover??S.cloudCover):9.);gl.uniform1i(u.uAst,S.atmSteps);gl.uniform1i(u.uOct,S.terrainOct);gl.uniform1i(u.uBhs,S.bhSteps);gl.uniform1f(u.uCity,S.cityLights?(co.city||0):0);
   gl.uniform1f(u.uRin,co.rin||0);gl.uniform1f(u.uRout,co.rout||0);gl.uniform1f(u.uDisk,S.diskBright);gl.uniform1f(u.uDiskT,co.diskT||70);
   gl.uniform1f(u.uDop,S.doppler?1:0);gl.uniform1f(u.uStars,1e-5*Math.pow(2,S.starBoost));gl.uniform1f(u.uGlare,drm().g);
   // star, surface extras, moons and the other planets of a system

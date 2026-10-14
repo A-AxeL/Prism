@@ -26,7 +26,9 @@ Prism ships two ways, both from this repository on GitHub:
 
 ## Releasing a new version
 
-1. Raise `"release"` in `project.json` (for example `0.45.9` → `0.46.0`); also update `"version"` and `CHANGELOG.md`.
+1. Raise `"release"` in `project.json` (for example `0.46.0` → `0.47.0`) and add a `## 0.47.0 (date)` section to
+   `RELEASE_NOTES.md`: players see it once after updating (and any time in Render › Tools › What’s new).
+   Also update `"version"` and `CHANGELOG.md`.
 2. Commit and push to `main` (this also updates the website).
 3. Tag and push the tag:
    ```

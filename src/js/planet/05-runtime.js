@@ -31,11 +31,11 @@ const peSrcs=()=>({TGEN:[VS,PE_TGEN()],TWX:[VS,PE_TGEN(true)],TPOST:[VS,PE_TPOST
 const PE_EXTRA=['TREE','IMP','TBAKE','TSHD','SHBL','TSM','ROCK','RSHD','GRASS','GLIT'];
 function peLink(n,vs,fs,key){const v=gl.createShader(gl.VERTEX_SHADER),f=gl.createShader(gl.FRAGMENT_SHADER),p=gl.createProgram();
   gl.shaderSource(v,vs);gl.compileShader(v);gl.shaderSource(f,fs);gl.compileShader(f);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);return {n,p,v,f,key};}
-function peFinish(x){gl.deleteShader(x.v);gl.deleteShader(x.f);const u={},n=gl.getProgramParameter(x.p,gl.ACTIVE_UNIFORMS);
-  for(let i=0;i<n;i++){const a=gl.getActiveUniform(x.p,i);u[a.name.replace('[0]','')]=gl.getUniformLocation(x.p,a.name);}
-  const old=PE.cache.get(x.n);if(old&&old.p!==x.p)gl.deleteProgram(old.p);const r={p:x.p,u,key:x.key};PE.cache.set(x.n,r);return r;}
+// programs are cached by name and source, so each world's variants (Earth, Mars, clouds on or off) stay compiled
+function peFinish(x){gl.deleteShader(x.v);gl.deleteShader(x.f);PE.cache=PE.cache||new Map();const r={p:x.p,u:progU(x.p),key:x.key};PE.cache.set(x.n+'|'+x.key,r);return r;}
 function peBuild(){const srcs=peSrcs(),list=[];PE.cache=PE.cache||new Map();PE.xq=[];PE.xrun=[];
-  for(const [n,[vs,fs]] of Object.entries(srcs)){const key=vs.length+':'+fs;const hit=PE.cache.get(n);if(hit&&hit.key===key){list.push({n,hit});continue;}
+  for(const [n,[vs,fs]] of Object.entries(srcs)){const key=vs.length+':'+fs;const hit=PE.cache.get(n+'|'+key);if(hit){list.push({n,hit});continue;}
+    const w=warmTake('pe|'+n+'|'+key);if(w){w.n=n;w.key=key;(PE_EXTRA.includes(n)?PE.xrun:list).push(w);continue;}
     if(PE_EXTRA.includes(n)){PE.xq.push({n,vs,fs,key});continue;}
     list.push(peLink(n,vs,fs,key));}
   pending={pe:true,list};document.body.classList.add('busy');if(!pExt)pollBuild(true);}
@@ -53,7 +53,7 @@ function pePoll(force){const L=pending.list;
   if(err){for(const x of L)if(!x.hit){gl.deleteProgram(x.p);gl.deleteShader(x.v);gl.deleteShader(x.f);}broken=true;errEl.style.display='grid';errEl.textContent='Shader error:\n'+err;return true;}
   const P={};
   for(const x of L)P[x.n]=x.hit||peFinish(x);
-  PE.P=P;if(TR&&TR.p)gl.deleteProgram(TR.p);TR={p:null,u:{},pe:true};broken=false;errEl.style.display='none';
+  PE.P=P;TR={p:null,u:{},pe:true};broken=false;errEl.style.display='none';
   try{OUT=OUT||prog(outFS);}catch(e){broken=true;errEl.style.display='grid';errEl.textContent='Shader error:\n'+e;}
   PE.lutK='';PE.macK='';reset();return true;}
 // textures and framebuffers

@@ -83,6 +83,7 @@ const PANES={
   EB('Tools'),
   {t:'html',html:'<button class="navrow" id="goCmp" type="button"><svg viewBox="0 0 24 24"><path d="M5 20v-8M11 20V5M17 20v-5M2.5 20.5h19"/></svg><span><b>Compare methods</b><small>Time and score every method on this scene</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>',when:obj},
   {t:'html',html:'<button class="navrow" id="goBench" type="button"><svg viewBox="0 0 24 24"><path d="M12 13l4-4M3.5 17a9 9 0 1 1 17 0"/><circle cx="12" cy="13" r="1.5"/></svg><span><b>Performance survey</b><small>Benchmark this device and choose whether to share the results</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>'},
+  {t:'html',html:'<button class="navrow" id="goNotes" type="button"><svg viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5V20.5H6z"/><path d="M9 11h6M9 14.5h6M9 18h4"/></svg><span><b>What’s new</b><small>Release notes for every update</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>'},
   {t:'html',html:'<button class="navrow danger" id="goWipe" type="button"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg><span><b>Reset everything</b><small>Erase all saved settings and start fresh</small></span></button><p class="credit"><span class="ver"></span> · made by AAxeL08</p>'}],
  look:[
   EB('Light',{when:()=>(obj()&&!SCENES[S.scene].force)||isPlanet()}),

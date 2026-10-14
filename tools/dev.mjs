@@ -1,3 +1,4 @@
+// (restart it after changing tools/build.mjs: the server keeps the build it started with)
 // Development server: builds, serves the project at http://localhost:8080 and reloads the page whenever a source file changes.
 //   node tools/dev.mjs [port]        (dev.cmd runs it and restarts it whenever this file changes)
 // Open http://localhost:8080 in Chrome or Edge (hardware acceleration on). The page reloads by itself after every save.

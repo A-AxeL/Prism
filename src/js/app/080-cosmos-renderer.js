@@ -35,10 +35,11 @@ vec3 stars(vec3 d){
 const cosmosFS=()=>{const c=SCENES[S.scene].cosmos;return `#version 300 es
 precision highp float;precision highp int;precision highp sampler3D;
 #define KIND ${c.kind}
-#define ASTEPS ${S.atmSteps}
-#define OCT ${S.terrainOct}
-#define BHSTEPS ${S.bhSteps}
-#define CLOUDS ${c.clouds&&S.clouds?1:0}
+uniform int uAst,uOct,uBhs;   // quality settings are uniforms, so changing them never recompiles
+#define ASTEPS uAst
+#define OCT uOct
+#define BHSTEPS uBhs
+#define CLOUDS ${c.clouds?1:0}
 #define RINGS ${c.rin>0?1:0}
 #define NMOON ${moonList(c).length}
 #define NBOD ${(c.bodies||[]).length}
@@ -121,7 +122,7 @@ float groundAt(vec3 p,float ng){vec3 q=spin(normalize(p),uTime*.03);float dv,h=h
 float terrainHit(vec3 ro,vec3 rd,float tLim){
   float Rm=1.+DISP*dispW*2.45+1e-6;vec2 tO=sph(ro,rd,Rm);if(tO.y<=0.)return -1.;   // Rm: above the highest possible peak
   vec2 tb=sph(ro,rd,1.);float t=max(tO.x,0.),tE=min(tO.y,tLim);bool base=tb.x>0.&&tb.x<=tE;if(base)tE=tb.x;
-  const int MST=ASTEPS*3<24?24:ASTEPS*3>48?48:ASTEPS*3;float tp=t,pix=2.*uTanF/min(uView.z,uView.w);
+  int MST=ASTEPS*3<24?24:ASTEPS*3>48?48:ASTEPS*3;float tp=t,pix=2.*uTanF/min(uView.z,uView.w);
   for(int i=0;i<MST;i++){vec3 p=ro+rd*t;
     // far away, relief finer than a pixel is skipped (fewer octaves per step)
     float ng=clamp(log2(1./(2.2*2.5*max(t*pix,1e-7)))/log2(2.07),float(OCT),float(OCT)+4.),dh=length(p)-groundAt(p,ng);
@@ -212,7 +213,7 @@ vec4 cloudVol(vec3 ro,vec3 rd,float tMax,out float tv){tv=1e9;
   vec2 tb=sph(ro,rd,CB);float r0=length(ro),t0=max(to.x,0.),t1=min(to.y,tMax);
   if(r0>CB){if(tb.x>0.)t1=min(t1,tb.x);}else if(tb.y>0.)t0=max(t0,tb.y);
   t1=min(t1,t0+.06);if(t1<=t0)return vec4(0,0,0,1);tv=t0;
-  const int NS=ASTEPS>16?16:ASTEPS;float dt=(t1-t0)/float(NS),T=1.,j=rnd(),mu=dot(rd,uSun);vec3 L=vec3(0);
+  int NS=ASTEPS>16?16:ASTEPS;float dt=(t1-t0)/float(NS),T=1.,j=rnd(),mu=dot(rd,uSun);vec3 L=vec3(0);
   float ph=mix(hgPh(mu,.7),hgPh(mu,-.25),.35)*4.*PI;   // forward-scattering silver lining, normalized so isotropic = 1
   const float SH=.00025;   // one look toward the sun for the billows' own shading
   for(int i=0;i<NS;i++){vec3 p=ro+rd*(t0+(float(i)+j)*dt);float r=length(p);vec3 Np=p/r;
