@@ -14,7 +14,7 @@ function doPost(e) {
     const raw = e && e.postData && e.postData.contents;
     if (!raw || raw.length > MAX_BYTES) return out_({ok: false, error: 'empty or too large'});
     const r = JSON.parse(raw);
-    if (r.schema !== 1 || !Array.isArray(r.results) || !r.system || !r.runId) return out_({ok: false, error: 'not a Prism survey'});
+    if (!(r.schema >= 1) || !Array.isArray(r.results) || !r.system || !r.runId) return out_({ok: false, error: 'not a Prism survey'});
     const lock = LockService.getScriptLock();
     lock.waitLock(20000);
     try {
@@ -33,11 +33,13 @@ function doPost(e) {
         d.board ? [d.board.vendor, d.board.model].join(' ') : '', d.system ? [d.system.vendor, d.system.model].join(' ') : '',
         brands || (s.browser && s.browser.ua) || '', s.display ? s.display.w + 'x' + s.display.h + ' @' + s.display.dpr : '',
         raw.slice(0, 49000)]);
-      const res = sheet_(ss, 'Results', ['Run ID', 'Version', 'GPU (WebGL)', 'Section', 'Test', 'Scene', 'View', 'Preset', 'Method', 'Settings',
-        'Width', 'Height', 'Scale', 'Median ms', 'P90 ms', 'P99 ms', 'Average ms', 'FPS (median)', 'FPS (wall)', 'Frames', 'Shader build ms', 'Failed']);
-      const rows = r.results.slice(0, 500).map(x => [r.runId, s.app && s.app.version, s.gpu && s.gpu.renderer, x.sec, x.label, x.scene, x.view, x.preset, x.mode,
-        JSON.stringify(x.set || {}), x.res && x.res[0], x.res && x.res[1], x.scale, x.medMs, x.p90Ms, x.p99Ms, x.avgMs,
-        x.medMs > 0 ? Math.round(1000 / x.medMs) : '', x.fpsWall, x.frames, x.buildMs, x.broken]);
+      // schema 2 (0.46.2 on): fixed 1600x900 output, typMs (mean of the middle 80% of frames) is the main figure,
+      // cover is the lit share of the last frame; schema 1 rows leave those columns empty
+      const res = sheet_(ss, 'Results2', ['Run ID', 'Version', 'GPU (WebGL)', 'Section', 'Test', 'Scene', 'View', 'Preset', 'Method', 'Settings',
+        'Width', 'Height', 'Scale', 'Typical ms', 'FPS', 'Median ms', 'P90 ms', 'P99 ms', 'Frames', 'Picture lit', 'Shader build ms', 'Counted', 'Why not']);
+      const rows = r.results.slice(0, 500).map(x => { const t = x.typMs || x.medMs; return [r.runId, s.app && s.app.version, s.gpu && s.gpu.renderer, x.sec, x.label,
+        x.scene, x.view, x.preset, x.mode, JSON.stringify(x.set || {}), x.res && x.res[0], x.res && x.res[1], x.scale, t, t > 0 ? Math.round(1000 / t) : '',
+        x.medMs, x.p90Ms, x.p99Ms, x.frames, x.cover == null ? '' : x.cover, x.buildMs, !x.broken, x.why || '']; });
       if (rows.length) res.getRange(res.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
     } finally {
       lock.releaseLock();

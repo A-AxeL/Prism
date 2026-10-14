@@ -25,8 +25,8 @@ function tick(now){
   idle=false;
   const V=view(CO);LV=V;if(place)placeUpdate();const eye=V.eye,fw=V.fw,rtv=V.rt,upv=V.up;
   if(dofOn())focusUpdate(V,dt);
-  if(CO){traceDraw(V,CO,re);ping=1-ping;frame++;moved=false;camMove=false;P={eye,fw,rt:rtv,up:upv};blit();bmHook(tF);if(meterOn()&&(++meterN&3)===0)meterKick();uiFrame();return;}
-  const tq=performance.now(),{taa,jit}=traceDraw(V,CO,re);
+  if(CO){bmBegin();traceDraw(V,CO,re);ping=1-ping;frame++;moved=false;camMove=false;P={eye,fw,rt:rtv,up:upv};blit();bmHook(tF);if(meterOn()&&(++meterN&3)===0)meterKick();uiFrame();return;}
+  bmBegin();const tq=performance.now(),{taa,jit}=traceDraw(V,CO,re);
   if(B_&&B_.sync){if(fFloat)gl.readPixels(0,0,1,1,gl.RGBA,gl.FLOAT,pxf);else gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px1);B_.tr.push(performance.now()-tq);}
   ping=1-ping;frame++;moved=false;camMove=false;if(taa)taauPass(P,eye,fw,rtv,upv,re,jit);P={eye,fw,rt:rtv,up:upv};
   blit();if(meterOn()&&(++meterN&3)===0)meterKick();
